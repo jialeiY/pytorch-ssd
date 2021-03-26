@@ -94,7 +94,7 @@ parser.add_argument('--use-cuda', default=True, type=str2bool,
 parser.add_argument('--checkpoint-folder', '--model-dir', default='models/',
                     help='Directory for saving checkpoint models')
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+logging.basicConfig( level=logging.INFO,handlers=[logging.FileHandler("log.log"),logging.StreamHandler()],
                     format='%(asctime)s - %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
                     
 args = parser.parse_args()
