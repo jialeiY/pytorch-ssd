@@ -18,6 +18,10 @@ def main(filename):
     imgnames = []
     annotations = {}
 
+    base_path=os.path.dirname(filename)
+    images_path=os.path.join(base_path,"JPEGImages")
+    label_path=os.path.join(base_path,"Annotations")
+
     with open(filename, 'r') as labelfile:
         label_string = ""
         for line in labelfile:
@@ -27,7 +31,7 @@ def main(filename):
     labels  = [elem.replace(" ", "") for elem in labels]
 
     # get image names
-    for filename in os.listdir("./JPEGImages"):
+    for filename in os.listdir(images_path):
         if filename.endswith(".jpg"):
             img = filename.rstrip('.jpg')
             imgnames.append(img)
@@ -40,7 +44,7 @@ def main(filename):
 
     # Scan the annotations for the labels
     for img in imgnames:
-        annote = "Annotations/" + img + '.xml'
+        annote = os.path.join(label_path,f"{img}.xml")
         if os.path.isfile(annote):
             tree = ET.parse(annote)
             root = tree.getroot()
