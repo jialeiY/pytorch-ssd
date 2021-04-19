@@ -25,9 +25,7 @@ def main(filename):
     with open(filename, 'r') as labelfile:
         label_string = ""
         for line in labelfile:
-                label_string += line.rstrip()
-
-    labels = label_string.split(',')
+                labels.append(line.strip())
     labels  = [elem.replace(" ", "") for elem in labels]
 
     # get image names

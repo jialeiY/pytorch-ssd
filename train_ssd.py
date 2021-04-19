@@ -104,6 +104,9 @@ if args.use_cuda and torch.cuda.is_available():
     torch.backends.cudnn.benchmark = True
     logging.info("Using CUDA...")
 
+def my_collate(batch):
+    batch = list(filter (lambda x:x is not None, batch))
+    return torch.utils.data.dataloader.default_collate(batch)
 
 def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
     net.train(True)
@@ -234,7 +237,7 @@ if __name__ == '__main__':
     logging.info("Train dataset size: {}".format(len(train_dataset)))
     train_loader = DataLoader(train_dataset, args.batch_size,
                               num_workers=args.num_workers,
-                              shuffle=True)
+                              shuffle=True,collate_fn=my_collate)
                            
     # create validation dataset                           
     logging.info("Prepare Validation datasets.")
@@ -250,7 +253,7 @@ if __name__ == '__main__':
 
     val_loader = DataLoader(val_dataset, args.batch_size,
                             num_workers=args.num_workers,
-                            shuffle=False)
+                            shuffle=False,collate_fn=my_collate)
                             
     # create the network
     logging.info("Build network.")

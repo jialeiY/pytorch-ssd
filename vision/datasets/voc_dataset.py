@@ -66,21 +66,25 @@ class VOCDataset:
         self.class_dict = {class_name: i for i, class_name in enumerate(self.class_names)}
 
     def __getitem__(self, index):
-        image_id = self.ids[index]
-        boxes, labels, is_difficult = self._get_annotation(image_id)
-        
-        if not self.keep_difficult:
-            boxes = boxes[is_difficult == 0]
-            labels = labels[is_difficult == 0]
+        try:
+            image_id = self.ids[index]
+            boxes, labels, is_difficult = self._get_annotation(image_id)
             
-        #print('__getitem__  image_id=' + str(image_id) + ' \nboxes=' + str(boxes) + ' \nlabels=' + str(labels))
+            if not self.keep_difficult:
+                boxes = boxes[is_difficult == 0]
+                labels = labels[is_difficult == 0]
+                
+            #print('__getitem__  image_id=' + str(image_id) + ' \nboxes=' + str(boxes) + ' \nlabels=' + str(labels))
+                
+            image = self._read_image(image_id)
             
-        image = self._read_image(image_id)
-        
-        if self.transform:
-            image, boxes, labels = self.transform(image, boxes, labels)
-        if self.target_transform:
-            boxes, labels = self.target_transform(boxes, labels)
+            if self.transform:
+                image, boxes, labels = self.transform(image, boxes, labels)
+            if self.target_transform:
+                boxes, labels = self.target_transform(boxes, labels)
+        except Exception as e:
+            print("get data error",e)
+            return None
             
         return image, boxes, labels
 
