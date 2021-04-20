@@ -3,7 +3,7 @@
 log
 data
 models
-
+log.log
 eval_results/
 
 # Pytorch Models
