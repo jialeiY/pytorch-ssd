@@ -78,38 +78,39 @@ def main(filename):
 
 
     # create the dataset files
-    create_folder("./ImageSets/Main/")
-    with open("./ImageSets/Main/train.txt", 'w') as outfile:
+    imageset_path=os.path.join(base_path,"ImageSets/Main")
+    create_folder(imageset_path)
+    with open(os.path.join(imageset_path,"train.txt"), 'w') as outfile:
         for name in train_list:
             outfile.write(name + "\n")
-    with open("./ImageSets/Main/val.txt", 'w') as outfile:
+    with open(os.path.join(imageset_path,"val.txt"), 'w') as outfile:
         for name in val_list:
             outfile.write(name + "\n")
-    with open("./ImageSets/Main/trainval.txt", 'w') as outfile:
+    with open(os.path.join(imageset_path,"trainval.txt"), 'w') as outfile:
         for name in train_list:
             outfile.write(name + "\n")
         for name in val_list:
             outfile.write(name + "\n")
 
-    with open("./ImageSets/Main/test.txt", 'w') as outfile:
+    with open(os.path.join(imageset_path,"test.txt"), 'w') as outfile:
         for name in test_list:
             outfile.write(name + "\n")
 
     # create the individiual files for each label
     for label in labels:
-        with open("./ImageSets/Main/"+ label +"_train.txt", 'w') as outfile:
+        with open(os.path.join(imageset_path,label +"_train.txt"), 'w') as outfile:
             for name in train_list:
                 if label in annotations[name]:
                     outfile.write(name + " 1\n")
                 else:
                     outfile.write(name + " -1\n")
-        with open("./ImageSets/Main/"+ label +"_val.txt", 'w') as outfile:
+        with open(os.path.join(imageset_path,label +"_val.txt"), 'w') as outfile:
             for name in val_list:
                 if label in annotations[name]:
                     outfile.write(name + " 1\n")
                 else:
                     outfile.write(name + " -1\n")
-        with open("./ImageSets/Main/"+ label +"_test.txt", 'w') as outfile:
+        with open(os.path.join(imageset_path,label +"_test.txt"), 'w') as outfile:
             for name in test_list:
                 if label in annotations[name]:
                     outfile.write(name + " 1\n")
