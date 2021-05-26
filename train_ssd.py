@@ -214,7 +214,7 @@ if __name__ == '__main__':
     for dataset_path in args.datasets:
         if args.dataset_type == 'voc':
             dataset = VOCDataset(dataset_path, transform=train_transform,
-                                 target_transform=target_transform)
+                                 target_transform=target_transform,bg_transform=test_transform)
             label_file = os.path.join(args.checkpoint_folder, "labels.txt")
             store_labels(label_file, dataset.class_names)
             num_classes = len(dataset.class_names)

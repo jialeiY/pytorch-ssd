@@ -8,7 +8,7 @@ import os
 
 class VOCDataset:
 
-    def __init__(self, root, transform=None, target_transform=None, is_test=False, keep_difficult=False, label_file=None):
+    def __init__(self, root, transform=None, target_transform=None, is_test=False, keep_difficult=False, label_file=None,bg_transform=None):
         """Dataset for VOC data.
         Args:
             root: the root of the VOC2007 or VOC2012 dataset, the directory contains the following sub-directories:
@@ -17,6 +17,7 @@ class VOCDataset:
         self.root = pathlib.Path(root)
         self.transform = transform
         self.target_transform = target_transform
+        self.bg_transform=bg_transform
 
         # determine the image set file to use
         if is_test:
@@ -77,10 +78,13 @@ class VOCDataset:
             #print('__getitem__  image_id=' + str(image_id) + ' \nboxes=' + str(boxes) + ' \nlabels=' + str(labels))
                 
             image = self._read_image(image_id)
-            
-            if self.transform:
+            if len(labels)==0 and self.bg_transform:
+
+                image, boxes, labels = self.bg_transform(image, boxes, labels)
+            elif self.transform:
                 image, boxes, labels = self.transform(image, boxes, labels)
-            if self.target_transform:
+
+            if  self.target_transform:
                 boxes, labels = self.target_transform(boxes, labels)
         except Exception as e:
             print("get data error",e)
@@ -156,8 +160,8 @@ class VOCDataset:
                     is_difficult_str = object.find('difficult').text
 
                 is_difficult.append(int(is_difficult_str) if is_difficult_str else 0)
-            else:
-                print("warning - image {:s} has object with unknown class '{:s}'".format(image_id, class_name))
+            # else:
+            #     print("warning - image {:s} has object with unknown class '{:s}'".format(image_id, class_name))
 
         return (np.array(boxes, dtype=np.float32),
                 np.array(labels, dtype=np.int64),

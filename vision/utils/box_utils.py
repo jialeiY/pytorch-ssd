@@ -3,6 +3,7 @@ import torch
 import itertools
 from typing import List
 import math
+import numpy as np
 
 SSDBoxSizes = collections.namedtuple('SSDBoxSizes', ['min', 'max'])
 
@@ -162,20 +163,26 @@ def assign_priors(gt_boxes, gt_labels, corner_form_priors,
         labels (num_priros): labels for priors.
     """
     # size: num_priors x num_targets
-    ious = iou_of(gt_boxes.unsqueeze(0), corner_form_priors.unsqueeze(1))
-    # size: num_priors
-    best_target_per_prior, best_target_per_prior_index = ious.max(1)
-    # size: num_targets
-    best_prior_per_target, best_prior_per_target_index = ious.max(0)
+    num_priors=corner_form_priors.shape[0]
+    if len(gt_labels)==0:
+        boxes=corner_form_priors
+        labels=torch.from_numpy(np.zeros(num_priors,dtype=np.int64))
+    else:
+        ious = iou_of(gt_boxes.unsqueeze(0), corner_form_priors.unsqueeze(1))
+        # size: num_priors
+        best_target_per_prior, best_target_per_prior_index = ious.max(1)
+        # size: num_targets
+        best_prior_per_target, best_prior_per_target_index = ious.max(0)
 
-    for target_index, prior_index in enumerate(best_prior_per_target_index):
-        best_target_per_prior_index[prior_index] = target_index
-    # 2.0 is used to make sure every target has a prior assigned
-    best_target_per_prior.index_fill_(0, best_prior_per_target_index, 2)
-    # size: num_priors
-    labels = gt_labels[best_target_per_prior_index]
-    labels[best_target_per_prior < iou_threshold] = 0  # the backgournd id
-    boxes = gt_boxes[best_target_per_prior_index]
+        for target_index, prior_index in enumerate(best_prior_per_target_index):
+            best_target_per_prior_index[prior_index] = target_index
+        # 2.0 is used to make sure every target has a prior assigned
+        best_target_per_prior.index_fill_(0, best_prior_per_target_index, 2)
+        # size: num_priors
+        labels = gt_labels[best_target_per_prior_index]
+        labels[best_target_per_prior < iou_threshold] = 0  # the backgournd id
+        boxes = gt_boxes[best_target_per_prior_index]
+
     return boxes, labels
 
 
@@ -195,6 +202,9 @@ def hard_negative_mining(loss, labels, neg_pos_ratio):
     """
     pos_mask = labels > 0
     num_pos = pos_mask.long().sum(dim=1, keepdim=True)
+    num_pos[num_pos==0]=1
+
+
     num_neg = num_pos * neg_pos_ratio
 
     loss[pos_mask] = -math.inf
